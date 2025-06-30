@@ -29,6 +29,10 @@ func main() {
 			return
 		}
 
+		println("Received log from", LOG.Source+":", LOG.Message)
+
+		c.JSON(200, gin.H{"status": "received"})
+
 	})
 
 	r.Run()
