@@ -35,6 +35,15 @@ func main() {
 
 	})
 
+
+	// Create rate limiter: 10 requests/minute per IP
+	limiter := NewRateLimiter(10, time.Minute)
+
+	// Apply globally or to specific routes
+	r.Use(limiter.Middleware())
+	
+	r.POST("/ingest", APIKeyAuthMiddleware(), IngestHandler)
+
 	r.Run()
 
 }
