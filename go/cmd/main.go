@@ -2,6 +2,12 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/Rassimdou/Log-analyzer/handlers"
+	"github.com/Rassimdou/Log-analyzer/rate_limiter"
+	"github.com/Rassimdou/Log-analyzer/storage"
+	"github.com/Rassimdou/Log-analyzer/auth"
+	"github.com/Rassimdou/Log-analyzer/middleware"
+
 	"log"
 	"time"
 )

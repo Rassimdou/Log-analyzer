@@ -1,4 +1,4 @@
-module server
+module github.com/Rassimdou/Log-analyzer
 
 go 1.24.3
 
