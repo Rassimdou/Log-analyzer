@@ -51,12 +51,12 @@ func NewLogStorage(directory string) (*LogStorage, error) {
 	}
 
 
-		func (s *LogStorage)WriteLog(source, message string) error {
+		func (s *LogStorage)WriteLog(source, ip , message string) error {
 		s.mutex.Lock()
 		defer s.mutex.Unlock()
 
 		//check if we need to rotate logs (new day)
-		currentDate := time.Now().Format("2005-01-02")
+		currentDate := time.Now().Format("2006-01-02")
 		if currentDate != s.fileDate {
 			if err := s.rotate(currentDate); err != nil {
 				return fmt.Errorf("failed to rotate log file: %w", err)

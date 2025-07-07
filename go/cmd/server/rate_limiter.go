@@ -11,16 +11,16 @@ import (
 
 //rate limiter stores reqest counters
 type RateLimiter struct{
-	requests	 map[string]time.Time
+	requests	 map[string][]time.Time
 	mutex 		 sync.Mutex
 	limit 		 int
 	window 		 time.Duration
 }
 
 // newRateLimiter creates a new instance 
-func NewRateLimiter(limit int , window time.Duration) *RateLiimiter {
+func NewRateLimiter(limit int , window time.Duration) *RateLimiter {
 	return &RateLimiter{
-		requests: make(map[string]time.Time),
+		requests: make(map[string][]time.Time),
 		limit:    limit,
 		window:   window,
 	}
@@ -63,3 +63,4 @@ func(rl *RateLimiter) Middleware() gin.HandlerFunc{
 	 }
 
 }
+

@@ -1,40 +1,42 @@
-package server
+package main 
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
-func APIKeyAuthMiddleware() gin.HandlerFunc {
-	validKeys := []string{"SECRET123", "BACKUP456", "TEST789"}
 
-	return func(c *gin.Context) {
-		apiKey := c.GetHeader("X-API-Key")
-
-		// Handle missing API key
-		if apiKey == "" {
-			c.AbortWithStatusJSON(401, gin.H{
-				"error": "API key required in X-API-Key header",
-			})
-			return
-		}
-
-		// Check if key is valid
-		valid := false
-		for _, key := range validKeys {
-			if apiKey == key {
-				valid = true
-				break
-			}
-		}
-
-		if !valid {
-			c.AbortWithStatusJSON(401, gin.H{
-				"error": "Invalid API key",
-				"hint":  "Use one of: SECRET123, BACKUP456, TEST789",
-			})
-			return
-		}
-
-		c.Next()
-	}
+type LogEntry struct{
+	Source 	string `json:"source"`
+	Message string `json:"message"`
 }
+
+
+
+func IngestHandler(storage *LogStorage) gin.HandlerFunc{
+	return func(c *gin.Context) {
+		var log LogEntry 
+		if err := c.ShouldBindJSON(&log); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+			return
+		}
+		//Get client IP
+		clientIP := c.ClientIP()
+
+		//write to storage 
+		if err := storage.WriteLog(log.Source, clientIP , log.Message); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to write log"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"status": "received",
+	
+		})
+
+}
+
+
+func StatusHandler(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"status":  "operational"})}
