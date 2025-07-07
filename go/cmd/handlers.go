@@ -35,7 +35,7 @@ func IngestHandler(storage *LogStorage) gin.HandlerFunc{
 		})
 
 }
-
+}
 
 func StatusHandler(c *gin.Context) {
 	c.JSON(200, gin.H{

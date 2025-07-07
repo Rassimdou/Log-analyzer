@@ -2,38 +2,37 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/Rassimdou/Log-analyzer/handlers"
-	"github.com/Rassimdou/Log-analyzer/rate_limiter"
-	"github.com/Rassimdou/Log-analyzer/storage"
-	"github.com/Rassimdou/Log-analyzer/auth"
-	"github.com/Rassimdou/Log-analyzer/middleware"
-
 	"log"
 	"time"
 )
 
 func main() {
-	// Initialize storage
+	// Initialize components
 	storage, err := NewLogStorage("logs")
 	if err != nil {
 		log.Fatalf("Failed to initialize storage: %v", err)
 	}
 	
-	// Initialize rate limiter
-	limiter := NewRateLimiter(10, time.Minute) // 10 reqs/min
+	limiter := NewRateLimiter(10, time.Minute)
 	
-	// Create router
 	r := gin.Default()
 	
-	// Middleware stack
+	// Apply rate limiting globally
 	r.Use(limiter.Middleware())
-	r.Use(APIKeyAuthMiddleware()) // From auth.go
 	
-	// Routes
-	r.GET("/status", StatusHandler)
-	r.POST("/ingest", IngestHandler(storage)) // Handler with storage dependency
+	// Public routes (no authentication)
+	public := r.Group("/")
+	{
+		public.GET("/status", StatusHandler)
+	}
 	
-	// Start server
-	log.Println("Starting security analyzer on :8080")
+	// Protected routes (require API key)
+	protected := r.Group("/")
+	protected.Use(APIKeyAuthMiddleware())  // Apply auth middleware only to this group
+	{
+		protected.POST("/ingest", IngestHandler(storage))
+	}
+	
+	log.Println("🚀 Security Analyzer starting on :8080")
 	r.Run(":8080")
 }

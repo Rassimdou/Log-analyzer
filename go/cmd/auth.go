@@ -13,7 +13,7 @@ func APIKeyAuthMiddleware() gin.HandlerFunc {
 
 		//handle missing key
 		if apiKey == "" {
-			c.abortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": "API key is required",
 			})
 			return
