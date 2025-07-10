@@ -1,42 +1,80 @@
-package main 
+package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
-
-type LogEntry struct{
-	Source 	string `json:"source"`
-	Message string `json:"message"`
+type LogEntry struct {
+	Source    string `json:"source"`
+	Message   string `json:"message"`
+	Method    string `json:"method"`
+	Path      string `json:"path"`
+	Timestamp string `json:"timestamp"`
 }
 
-
-
-func IngestHandler(storage *LogStorage) gin.HandlerFunc{
+func IngestPOSTHandler(storage *LogStorage) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var log LogEntry 
+		var log LogEntry
 		if err := c.ShouldBindJSON(&log); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid JSON"})
 			return
 		}
-		//Get client IP
-		clientIP := c.ClientIP()
 
-		//write to storage 
-		if err := storage.WriteLog(log.Source, clientIP , log.Message); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to write log"})
+		log.Method = "POST"
+		log.Path = c.Request.URL.Path
+		log.Timestamp = time.Now().Format(time.RFC3339)
+		_ = storage.WriteLog(c.ClientIP(), log.Source, log.Message)
+		c.JSON(http.StatusOK, gin.H{"status": "POST received"})
+	}
+}
+
+func IngestGETHandler(storage *LogStorage) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		log := LogEntry{
+			Source:    c.Query("source"),
+			Message:   c.Query("message"),
+			Method:    "GET",
+			Path:      c.Request.URL.Path,
+			Timestamp: time.Now().Format(time.RFC3339),
+		}
+		_ = storage.WriteLog(c.ClientIP(), log.Source, log.Message)
+		c.JSON(http.StatusOK, gin.H{"status": "GET received"})
+
+	}
+}
+
+func IngestPUTHandler(storage *LogStorage) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var log LogEntry
+		if err := c.ShouldBindJSON(&log); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"status": "Invalid JSON"})
+
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"status": "received",
-	
-		})
+		log.Method = "PUT"
+		log.Path = c.Request.URL.Path
+		log.Timestamp = time.Now().Format(time.RFC3339)
+
+		_ = storage.WriteLog(c.ClientIP(), log.Source, log.Message)
+		c.JSON(http.StatusOK, gin.H{"status": "PUT received"})
+	}
+}
+
+func IngestDELETEHandler(storage *LogStorage) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		log := LogEntry{
+			Source:    c.Query("source"),
+			Message:   c.Query("message"),
+			Method:    "DELETE",
+			Path:      c.Request.URL.Path,
+			Timestamp: time.Now().Format(time.RFC3339),
+		}
+		_ = storage.WriteLog(c.ClientIP(), log.Message, log.Source)
+		c.JSON(http.StatusAccepted, gin.H{"status": "DELETE received"})
+
+	}
 
 }
-}
-
-func StatusHandler(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"status":  "operational"})}
