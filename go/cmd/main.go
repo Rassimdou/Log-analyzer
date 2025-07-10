@@ -24,14 +24,11 @@ func main() {
 	public := r.Group("/")
 	{
 		public.GET("/status", StatusHandler)
+		public.POST("/ingest", IngestHandler)
 	}
 	
 	// Protected routes (require API key)
-	protected := r.Group("/")
-	protected.Use(APIKeyAuthMiddleware())  // Apply auth middleware only to this group
-	{
-		protected.POST("/ingest", IngestHandler(storage))
-	}
+
 	
 	log.Println("🚀 Security Analyzer starting on :8080")
 	r.Run(":8080")
