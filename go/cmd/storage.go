@@ -39,7 +39,7 @@ func NewLogStorage(directory string) (*LogStorage, error) {
 	}, nil
 }
 
-func (s *LogStorage) WriteLog(source, ip, message string) error {
+func (s *LogStorage) WriteLog(method, source, ip, path, message string) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -50,9 +50,9 @@ func (s *LogStorage) WriteLog(source, ip, message string) error {
 			return fmt.Errorf("failed to rotate log file: %w", err)
 		}
 	}
-	
+
 	// Write log entry
-	logEntry := formatLogEntry(source, ip, message)
+	logEntry := formatLogEntry(method, source, ip, path, message)
 	_, err := s.file.WriteString(logEntry) // Added comma after logEntry
 	return err
 }
@@ -79,10 +79,12 @@ func (s *LogStorage) rotate(newDate string) error {
 	return nil
 }
 
-func formatLogEntry(source, ip, message string) string {
+func formatLogEntry(method, source, ip, path, message string) string {
 	return fmt.Sprintf("[%s] [%s] [%s] %s\n",
 		time.Now().UTC().Format(time.RFC3339),
+		method,
 		source,
 		ip,
+		path,
 		message)
 }
