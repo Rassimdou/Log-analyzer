@@ -26,7 +26,7 @@ func IngestPOSTHandler(storage *LogStorage) gin.HandlerFunc {
 		log.Method = "POST"
 		log.Path = c.Request.URL.Path
 		log.Timestamp = time.Now().Format(time.RFC3339)
-		_ = storage.WriteLog(log.Method, c.ClientIP(), log.Source, log.Path, log.Message)
+		_ = storage.WriteLog(log.Method, log.Source, c.ClientIP(), log.Path, log.Message)
 		c.JSON(http.StatusOK, gin.H{"status": "POST received"})
 	}
 }
@@ -40,7 +40,7 @@ func IngestGETHandler(storage *LogStorage) gin.HandlerFunc {
 			Path:      c.Request.URL.Path,
 			Timestamp: time.Now().Format(time.RFC3339),
 		}
-		_ = storage.WriteLog(log.Message, c.ClientIP(), log.Source, log.Path, log.Message)
+		_ = storage.WriteLog(log.Method, log.Source, c.ClientIP(), log.Path, log.Message)
 		c.JSON(http.StatusOK, gin.H{"status": "GET received"})
 
 	}
@@ -58,7 +58,7 @@ func IngestPUTHandler(storage *LogStorage) gin.HandlerFunc {
 		log.Path = c.Request.URL.Path
 		log.Timestamp = time.Now().Format(time.RFC3339)
 
-		_ = storage.WriteLog(log.Method, c.ClientIP(), log.Source, log.Path, log.Message)
+		_ = storage.WriteLog(log.Method, log.Source, c.ClientIP(), log.Path, log.Message)
 		c.JSON(http.StatusOK, gin.H{"status": "PUT received"})
 	}
 }
@@ -72,7 +72,7 @@ func IngestDELETEHandler(storage *LogStorage) gin.HandlerFunc {
 			Path:      c.Request.URL.Path,
 			Timestamp: time.Now().Format(time.RFC3339),
 		}
-		_ = storage.WriteLog(log.Method, c.ClientIP(), log.Message, log.Path, log.Source)
+		_ = storage.WriteLog(log.Method, log.Source, c.ClientIP(), log.Path, log.Message)
 		c.JSON(http.StatusAccepted, gin.H{"status": "DELETE received"})
 
 	}

@@ -1,0 +1,3 @@
+[2025-07-10T23:07:55Z] [PUT] [::1] cli
+%!(EXTRA string=/log/put, string=PUT test from curl){"ip":"cli","message":"PUT test from curl","method":"PUT","path":"/log/put","source":"::1","timestamp":"2025-07-10T23:20:39Z"}
+{"ip":"cli","message":"PUT test from curl","method":"PUT","path":"/log/put","source":"::1","timestamp":"2025-07-10T23:25:56Z"}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -78,13 +79,15 @@ func (s *LogStorage) rotate(newDate string) error {
 	s.fileDate = newDate
 	return nil
 }
-
 func formatLogEntry(method, source, ip, path, message string) string {
-	return fmt.Sprintf("[%s] [%s] [%s] %s\n",
-		time.Now().UTC().Format(time.RFC3339),
-		method,
-		source,
-		ip,
-		path,
-		message)
+	entry := map[string]string{
+		"timestamp": time.Now().UTC().Format(time.RFC3339),
+		"method":    method,
+		"source":    source,
+		"ip":        ip,
+		"path":      path,
+		"message":   message,
+	}
+	jsonBytes, _ := json.Marshal(entry)
+	return string(jsonBytes) + "\n"
 }
